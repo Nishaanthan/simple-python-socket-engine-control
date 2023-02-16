@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style type="text/css">
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+        }
+
+        .leftpart {
+            width: 500px;
+            height: 500px;
+            margin: 5px;
+        }
+    </style>
+    <title>Engine</title>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/dojo/1.9.1/dijit/themes/soria/soria.css" />
+    <script>dojoConfig = { async: true, gfxRenderer: "svg,silverlight,vml" }</script>
+    <script src="https://ajax.googleapis.com/ajax/libs/dojo/1.9.1/dojo/dojo.js"></script>
+    <script>
+        var bewege = null;
+        var changeSpeed = null;
+
+        require(["dojo/dom", "dijit/form/HorizontalSlider", "dijit/form/HorizontalRuleLabels", "dojox/gfx", "dojo/domReady!"],
+
+            function (dom, HorizontalSlider, HorizontalRuleLabels, gfx) {
+                var surface = gfx.createSurface("zeichenflaeche", 300, 500);
+                var surface_size = { width: 500, height: 300 };
+
+                var SCHEIBE_RAD = 60;
+                var SCHEIBE_MITTX = 150;
+                var SCHEIBE_MITTY = 320;
+                var SCHEIBE_OFFENW = 150;
+                var PLEUEL_BREITE = 15;
+                var PLEUEL_LANG_KURZ = 0.8 * SCHEIBE_RAD;
+                var PLEUEL_LANG_LANG = 1.5 * SCHEIBE_RAD;
+                var PLEUEL_NETTO = 0.9 * PLEUEL_LANG_LANG;
+                var SPLINT_RAD = 4;
+                var STANGE_BREIT = 15;
+                var STANGE_LANG = 160.0;
+                var STANGE_OVER = 0.06 * STANGE_LANG;
+                var KOLBEN_WIDTH = 20;
+                var KOLBEN_HEIGHT = 70;
+                var KOLBEN_DIST = 0.9 * KOLBEN_HEIGHT
+                var KOLBEN_WIDTH2 = 30;
+                var KOLBEN_WIDTH1 = 20;
+                var KOLBEN_HOCH = 70;
+                var KOLBEN_OVER = 7;
+                var K_RING_DIST = 5;
+                var SPEED_FAC = 0.8;
+
+                var winkel = 0.0;
+                var trans1;
+                var speed = 3;
+
+                var kolben;
+                var scheibe;
+                var stange;
+
+                changeSpeed = function (newspeed) {
+                    s.send(newspeed);
+                }
+
+                var slider = new HorizontalSlider({
+                    name: "slider",
+                    value: 3,
+                    minimum: -10,
+                    maximum: 10,
+                    discreteValues: 21,
+                    intermediateChanges: true,
+                    style: "width:300px;",
+                    onChange: changeSpeed
+                }, "slider");
+
+                var hLabels = new HorizontalRuleLabels({
+                    container: "bottomDecoration",
+                    style: "width:260px;margin-left:20px;height:2em;font-size:75%;color:gray;"
+                }, "SliderLabels");
+
+                try {
+                    var host = "ws://localhost:3000";
+                    console.log("Host:", host);
+
+                    //Open up a WebSocket connection named s
+                    var s = new WebSocket(host);
+
+                    s.onopen = e => {
+                        // Log message that the socket is open
+                        console.log("Socket is open");
+                    };
+
+                    s.onclose = e => {
+                        // Log message that the socket is closed
+                        console.log("Socket is closed");
+                    };
+
+                    s.onmessage = e => {
+                        console.log("Socket message:", e.data);
+                    };
+
+                    s.onerror = function (e) {
+                        console.log("Socket error:", e);
+                    };
+                } catch (ex) {
+                    console.log("Socket exception:", ex);
+                }
+            }
+        );
+    </script>
+</head>
+
+<body class="soria">
+    <h1>Control</h1>
+    <hr />
+    <div id="zeichenflaeche">
+        <div id="slider"></div>
+        <ol id="SliderLabels">
+            <li>-10</li>
+            <li>0</li>
+            <li>10</li>
+        </ol>
+    </div>
+</body>
+
+</html>
